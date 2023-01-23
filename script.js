@@ -31,19 +31,19 @@ function messageRender() {
 	for (let i = 0; i < messages.length; i++) {
 		if (messages[i].type === 'status') {
 			chat.innerHTML += `
-        <div class="message">
+        <div data-test="message" class="message">
           <p><span>(${messages[i].time})</span> <strong>${messages[i].from}</strong> ${messages[i].text}</p>
         </div>
       `;
 		} else if (messages[i].type === 'message') {
 			chat.innerHTML += `
-        <div class="message white">
+        <div data-test="message" class="message white">
           <p><span>(${messages[i].time})</span> <strong>${messages[i].from}</strong> para <strong>${messages[i].to}</strong>: ${messages[i].text}</p>
         </div>
       `;
 		} else {
 			chat.innerHTML += `
-        <div class="message red">
+        <div data-test="message" class="message red">
           <p><span>(${messages[i].time})</span> <strong>${messages[i].from}</strong> reservadamente para <strong>${messages[i].to}</strong>: ${messages[i].text}</p>
         </div>
       `;
@@ -54,7 +54,6 @@ function messageRender() {
 
 function sendMessage() {
 	const text = document.querySelector('input').value;
-
 	const promise = axios.post(
 		'https://mock-api.driven.com.br/api/v6/uol/messages',
 		{
@@ -64,10 +63,20 @@ function sendMessage() {
 			type: 'message',
 		}
 	);
-	promise.then(messageChecker);
-	promise.catch((error) => {
-		console.log(error);
+	promise.catch(() => {
+		window.location.reload();
 	});
+
+	document.querySelector('input').value = '';
 }
 
 setInterval(messageChecker, 3000);
+setInterval(() => {
+	axios
+		.post('https://mock-api.driven.com.br/api/v6/uol/status', {
+			name: nome,
+		})
+		.catch(() => {
+			alert('Ocorreu um erro inesperado');
+		});
+}, 5000);
